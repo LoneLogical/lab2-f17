@@ -73,6 +73,7 @@ myproc(void) {
 static struct proc*
 allocproc(void)
 {
+  cprintf("allocproc\n");
   struct proc *p;
   char *sp;
 
@@ -120,6 +121,7 @@ found:
 void
 userinit(void)
 {
+  cprintf("userinit function\n");  
   struct proc *p;
   extern char _binary_initcode_start[], _binary_initcode_size[];
 
@@ -180,6 +182,7 @@ growproc(int n)
 int
 fork(void)
 {
+  cprintf("Fork\n");
   int i, pid;
   struct proc *np;
   struct proc *curproc = myproc();
@@ -190,7 +193,7 @@ fork(void)
   }
 
   // Copy process state from proc.
-  if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
+  if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz, curproc->sp_pg_start)) == 0){
     kfree(np->kstack);
     np->kstack = 0;
     np->state = UNUSED;
@@ -232,7 +235,7 @@ exit(void)
   int fd;
 
   if(curproc == initproc)
-    panic("init exiting");
+    panic("init exiting2");
 
   // Close all open files.
   for(fd = 0; fd < NOFILE; fd++){

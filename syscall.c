@@ -18,8 +18,8 @@ int
 fetchint(uint addr, int *ip)
 {
   struct proc *curproc = myproc();
-
-  if(addr >= curproc->sz || addr+4 > curproc->sz)
+  //want to protect against looking into next page
+  if(addr >= curproc->sp_pg_end || addr+4 > curproc->sp_pg_end)
     return -1;
   *ip = *(int*)(addr);
   return 0;
@@ -34,10 +34,10 @@ fetchstr(uint addr, char **pp)
   char *s, *ep;
   struct proc *curproc = myproc();
 
-  if(addr >= curproc->sz)
+  if(addr >= curproc->sp_pg_end)
     return -1;
   *pp = (char*)addr;
-  ep = (char*)curproc->sz;
+  ep = (char*)curproc->sp_pg_end;
   for(s = *pp; s < ep; s++){
     if(*s == 0)
       return s - *pp;
@@ -63,7 +63,7 @@ argptr(int n, char **pp, int size)
  
   if(argint(n, &i) < 0)
     return -1;
-  if(size < 0 || (uint)i >= curproc->sz || (uint)i+size > curproc->sz)
+  if(size < 0 || (uint)i >= curproc->sp_pg_end || (uint)i+size > curproc->sp_pg_end)
     return -1;
   *pp = (char*)i;
   return 0;

@@ -132,6 +132,8 @@ userinit(void)
     panic("userinit: out of memory?");
   inituvm(p->pgdir, _binary_initcode_start, (int)_binary_initcode_size);
   p->sz = PGSIZE;
+  p->sp_pg_end = 0; //Lab3
+  p->sp_pg_start = 0;
   memset(p->tf, 0, sizeof(*p->tf));
   p->tf->cs = (SEG_UCODE << 3) | DPL_USER;
   p->tf->ds = (SEG_UDATA << 3) | DPL_USER;
@@ -189,12 +191,14 @@ fork(void)
 
   // Allocate process.
   if((np = allocproc()) == 0){
+	cprintf("fork: allocproc returned error\n");
     return -1;
   }
 
   // Copy process state from proc.
   if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz, curproc->sp_pg_start)) == 0){
-    kfree(np->kstack);
+    cprintf("fork: copyuvm returned error\n");
+	kfree(np->kstack);
     np->kstack = 0;
     np->state = UNUSED;
     return -1;

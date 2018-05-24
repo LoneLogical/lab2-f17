@@ -19,8 +19,21 @@ fetchint(uint addr, int *ip)
 {
   struct proc *curproc = myproc();
   //want to protect against looking into next page
-  if(addr >= curproc->sp_pg_end || addr+4 > curproc->sp_pg_end)
-    return -1;
+  //cprintf("fetchint\n");
+  //cprintf("addr: %d \n", addr);
+  //cprintf("pg_end: %d \n", curproc->sp_pg_end);
+  //cprintf("sz: %d \n", curproc->sz);
+
+  if(curproc->sp_pg_end == 0) {
+    //only need to enter her when kernel is booting and sp_pg_end isn't used
+	if(addr >= curproc->sz || addr+4 > curproc->sz)
+      return -1;
+  }
+  else { 
+    if(addr >= curproc->sp_pg_end || addr+4 > curproc->sp_pg_end)
+      return -1;
+  }
+
   *ip = *(int*)(addr);
   return 0;
 }
@@ -34,10 +47,19 @@ fetchstr(uint addr, char **pp)
   char *s, *ep;
   struct proc *curproc = myproc();
 
-  if(addr >= curproc->sp_pg_end)
-    return -1;
+  if(curproc->sp_pg_end == 0) {
+    if(addr >= curproc->sz)
+      return -1;
+    ep = (char*)curproc->sz;
+  }
+  else {
+    if(addr >= curproc->sp_pg_end)
+      return -1;
+    ep = (char*)curproc->sp_pg_end;
+  }
+  
   *pp = (char*)addr;
-  ep = (char*)curproc->sp_pg_end;
+  
   for(s = *pp; s < ep; s++){
     if(*s == 0)
       return s - *pp;
@@ -49,6 +71,7 @@ fetchstr(uint addr, char **pp)
 int
 argint(int n, int *ip)
 {
+  //cprintf("argint\n");
   return fetchint((myproc()->tf->esp) + 4 + 4*n, ip);
 }
 
@@ -58,6 +81,7 @@ argint(int n, int *ip)
 int
 argptr(int n, char **pp, int size)
 {
+  //cprintf("argptr\n");
   int i;
   struct proc *curproc = myproc();
  
@@ -76,6 +100,7 @@ argptr(int n, char **pp, int size)
 int
 argstr(int n, char **pp)
 {
+  //cprintf("argstr\n");
   int addr;
   if(argint(n, &addr) < 0)
     return -1;

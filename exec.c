@@ -11,6 +11,7 @@ int
 exec(char *path, char **argv)
 {
   cprintf("exec beginning\n");
+  cprintf("path: %s \n", path);
   char *s, *last;
   int i, off;
   uint argc, sz, sp, stack_guard, ustack[3+MAXARG+1];
@@ -71,7 +72,8 @@ exec(char *path, char **argv)
   // sp points to last word in the page
   if((sp = allocuvm(pgdir, stack_guard, KERNBASE - 1)) == 0)
     goto bad;
-  
+ 
+  cprintf("got past allocuvm\n");
   // No longer going to need the guard page here
   //clearpteu(pgdir, (char*)(sz - 2*PGSIZE));
 

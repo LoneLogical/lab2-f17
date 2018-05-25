@@ -77,6 +77,18 @@ trap(struct trapframe *tf)
             cpuid(), tf->cs, tf->eip);
     lapiceoi();
     break;
+  case T_PGFLT:
+    if ( (rcr2() < myproc()->sp_pg_start) && 
+		(rcr2() >= myproc()->sp_pg_start - PGSIZE) ) {
+        cprintf("off_addr is okay\n");
+		cprintf("rcr2: %d\n", rcr2());
+	}
+	else {
+        cprintf("off_addr is bad \n");
+		myproc()->killed = 1;
+	}
+
+	break;
 
   //PAGEBREAK: 13
   default:

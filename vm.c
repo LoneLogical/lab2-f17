@@ -223,7 +223,7 @@ loaduvm(pde_t *pgdir, char *addr, struct inode *ip, uint offset, uint sz)
 int
 allocuvm(pde_t *pgdir, uint oldsz, uint newsz)
 {
-  cprintf("allocuvm\n");
+
   char *mem;
   uint a;
 
@@ -233,9 +233,12 @@ allocuvm(pde_t *pgdir, uint oldsz, uint newsz)
     return oldsz;
 
   a = PGROUNDUP(oldsz);
+
   for(; a < newsz; a += PGSIZE){
     mem = kalloc();
     if(mem == 0){
+      cprintf("\nout of memory, with heap (sz) = %d and rcr = %d\n\n", myproc()->sz, rcr2());
+
       cprintf("allocuvm out of memory\n");
       deallocuvm(pgdir, newsz, oldsz);
       return 0;

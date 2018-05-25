@@ -78,18 +78,19 @@ trap(struct trapframe *tf)
     lapiceoi();
     break;
   case T_PGFLT:
-    if ( (rcr2() < myproc()->sp_pg_start) && 
-		(rcr2() >= myproc()->sp_pg_start - PGSIZE) ) {
-        cprintf("off_addr is okay\n");
-		cprintf("rcr2: %d\n", rcr2());
-	}
-	else {
+    if ( (rcr2() < myproc()->sp_pg_start) && (rcr2() >= myproc()->sp_pg_start - PGSIZE) ) {   
+        allocuvm(myproc()->pgdir, 
+                 myproc()->sp_pg_start - PGSIZE,  
+                 myproc()->sp_pg_start);
+	myproc()->sp_pg_start = myproc()->sp_pg_start - PGSIZE;
+
+        break;
+    }
+    else {
         cprintf("off_addr is bad \n");
-		myproc()->killed = 1;
-	}
-
-	break;
-
+        myproc()->killed = 1;
+    }
+  break;
   //PAGEBREAK: 13
   default:
     if(myproc() == 0 || (tf->cs&3) == 0){

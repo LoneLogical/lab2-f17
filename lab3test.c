@@ -4,8 +4,9 @@
 
 int test(int n)
 { 
-   int x = n + 1;
-   return x;
+   //int x = n + 1;
+   test(n+1);
+   return n;
 }
 
 int recurse(int n)
@@ -21,7 +22,7 @@ int main(int argc, char *argv[])
    int pid=0;
    pid=fork();
    if(pid==0){
-	   recurse(8000);
+//	   recurse(8000);
        test(1);
        exit();
    }

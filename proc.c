@@ -196,9 +196,12 @@ fork(void)
   }
 
   // Copy process state from proc.
+  //FIXME:
+  cprintf("\n\nIN FORK: stack page start=%d\n\n", curproc->sp_pg_start);
+
   if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz, curproc->sp_pg_start)) == 0){
     cprintf("fork: copyuvm returned error\n");
-	kfree(np->kstack);
+    kfree(np->kstack);
     np->kstack = 0;
     np->state = UNUSED;
     return -1;
@@ -206,6 +209,10 @@ fork(void)
   np->sz = curproc->sz;
   np->parent = curproc;
   *np->tf = *curproc->tf;
+
+  //FIXME: lab3  
+  np->sp_pg_start = curproc->sp_pg_start;
+  np->sp_pg_end   = curproc->sp_pg_end;
 
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;

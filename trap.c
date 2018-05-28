@@ -77,20 +77,29 @@ trap(struct trapframe *tf)
             cpuid(), tf->cs, tf->eip);
     lapiceoi();
     break;
+
   case T_PGFLT:
-    if ( (rcr2() < myproc()->sp_pg_start) && (rcr2() >= myproc()->sp_pg_start - PGSIZE) ) {   
+    if ( (rcr2() < myproc()->sp_pg_start) && (rcr2() >= myproc()->sp_pg_start - PGSIZE) ) { 
+      cprintf("\npage fault accessing %d\n", rcr2());
+      if ( PGROUNDUP(myproc()->sz + 1) >= rcr2() ) {
+        cprintf("\n\npage fault error with sz = %d and rcr = %d\n\n", myproc()->sz, rcr2());
+        exit();     
+      }
+
+      else {
+        //cprintf("\n\npage fault with rcr = %d\n\n", rcr2()); 
         allocuvm(myproc()->pgdir, 
                  myproc()->sp_pg_start - PGSIZE,  
                  myproc()->sp_pg_start);
 	myproc()->sp_pg_start = myproc()->sp_pg_start - PGSIZE;
-
-        break;
+      }
+      cprintf("\npage fault resolved, page start for stack now at %d\n", myproc()->sp_pg_start);
     }
     else {
         cprintf("off_addr is bad \n");
         myproc()->killed = 1;
     }
-  break;
+    break;
   //PAGEBREAK: 13
   default:
     if(myproc() == 0 || (tf->cs&3) == 0){

@@ -2,29 +2,38 @@
 #include "stat.h"
 #include "user.h"
 
-int test(int n)
-{ 
-   //int x = n + 1;
-   test(n+1);
+int grow_heap(int m) {
+   int* foo = malloc(m * sizeof(int));
+   memset(foo, 0, m * sizeof(int));
+   return m;
+}
+
+int inf_grow_stack(int n)
+{
+   grow_heap(n); 
+   inf_grow_stack(n+1);
+
    return n;
 }
 
-int recurse(int n)
-{
-	if (n < 2) {
-		return 2;
-	}
-	return recurse(n-1) + recurse(n-2);
+int grow_stack(int depth) {
+   printf(1, "\ngrowing stack at recursion depth %d\n", depth);
+
+   if (depth == 0)
+      return depth;
+   grow_stack(depth - 1);
+
+   printf(1, "\nreturning at depth %d\n", depth);  
+   return depth;
 }
 
 int main(int argc, char *argv[])
 {
    int pid=0;
    pid=fork();
-   if(pid==0){
-//	   recurse(8000);
-       test(1);
-       exit();
+   if(pid==0){ 
+      grow_stack(1000); 
+      exit();
    }
    wait();
    exit();

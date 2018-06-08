@@ -19,7 +19,9 @@ int main(int argc, char *argv[]) {
   //we get the virtual address of the page returned into counter
   //which we can now use but will be shared between the two processes
   
-  shm_open(1,(char **)&counter);
+  int success = shm_open(1,(char **)&counter);
+  if (!success)
+    printf(0,"mappages failed on existing page\n");
 
   //  printf(1,"%s returned successfully from shm_open with counter %x\n", pid? "Child": "Parent", counter); 
 
@@ -29,8 +31,11 @@ int main(int argc, char *argv[]) {
      urelease(&(counter->lock));
 
      //print something because we are curious and to give a chance to switch process
-     if(i%1000 == 0)
+     if(i%1000 == 0) {
         printf(1,"Counter in %s is %d at address %x\n",pid? "Parent" : "Child", counter->cnt, counter);
+
+        printf(1, "i = %d\n", i);
+     }
   }
   
   if(pid) {
@@ -41,7 +46,8 @@ int main(int argc, char *argv[]) {
   }
 
   //shm_close: first process will just detach, next one will free up the shm_table entry (but for now not the page)
-  shm_close(1);
+
+  //shm_close(1);
   exit();
   return 0;
 }

@@ -92,8 +92,27 @@ int shm_open(int id, char **pointer) {
   return 1; 
 }
 
-
 int shm_close(int id) {
+  int i;
+  acquire(&(shm_table.lock));
+  for(i = 0; i < 64; i++) {
+    if(shm_table.shm_pages[i].id != id) {
+      continue;
+    }
+    //this table entry matches the id
+    shm_table.shm_pages[i].refcnt = shm_table.shm_pages[i].refcnt - 1;
+    if ( !(shm_table.shm_pages[i].refcnt) ) {
+      //last process to use this shared memory
+      shm_table.shm_pages[i].id = 0;
+      //clean up phys memory
 
-  return 0; 
+    }
+    //can return correctly
+    release(&(shm_table.lock));
+    return 0;
+  }
+  //could not find that id
+  
+  release(&(shm_table.lock));
+  return -1; //error
 }

@@ -99,13 +99,19 @@ int shm_close(int id) {
     if(shm_table.shm_pages[i].id != id) {
       continue;
     }
+   
+    struct proc *curproc = myproc();
+
+    //clear process's pgdir entry
+    unsigned pgdir_idx = PTX(shm_table.shm_pages[i].frame);
+    curproc->pgdir[pgdir_idx] = 0; 
+
     //this table entry matches the id
     shm_table.shm_pages[i].refcnt = shm_table.shm_pages[i].refcnt - 1;
     if ( !(shm_table.shm_pages[i].refcnt) ) {
-      //last process to use this shared memory
       shm_table.shm_pages[i].id = 0;
-      //clean up phys memory
-
+      kfree(V2P(shm_table.shm_pages[i].frame)); 
+      shm_table.shm_pages[i].frame = 0;
     }
     //can return correctly
     release(&(shm_table.lock));

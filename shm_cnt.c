@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
 
   //shm_close: first process will just detach, next one will free up the shm_table entry (but for now not the page)
 
-  //shm_close(1);
+  shm_close(1);
   exit();
   return 0;
 }

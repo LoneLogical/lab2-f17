@@ -110,7 +110,7 @@ int shm_close(int id) {
     shm_table.shm_pages[i].refcnt = shm_table.shm_pages[i].refcnt - 1;
     if ( !(shm_table.shm_pages[i].refcnt) ) {
       shm_table.shm_pages[i].id = 0;
-      kfree(V2P(shm_table.shm_pages[i].frame)); 
+      kfree(shm_table.shm_pages[i].frame); 
       shm_table.shm_pages[i].frame = 0;
     }
     //can return correctly
